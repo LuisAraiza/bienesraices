@@ -17,9 +17,15 @@ $propiedades = $pdo->query("SELECT * FROM propiedades")->fetchAll(PDO::FETCH_ASS
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listado de Propiedades</title>
+        <!-- Favicon usando logochido.png -->
+        <link rel="icon" href="img/logochido.png" type="image/png" sizes="32x32">
+
+<!-- Opcional: soporte para dispositivos Apple -->
+<link rel="apple-touch-icon" href="img/logochido.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
