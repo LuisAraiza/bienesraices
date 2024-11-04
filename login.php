@@ -13,18 +13,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([':correo' => $correo]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    
+
     if ($usuario) {
+        // Verificar la contraseña
         if (password_verify($password, $usuario['password'])) {
-            $_SESSION['usuario'] = [
-                'id' => $usuario['id'],
-            ];
-            header('Location: index.php');
-            exit();
+            // Verificar si el usuario está verificado
+            if ($usuario['verificado'] == 1) {
+                $_SESSION['usuario'] = [
+                    'id' => $usuario['id'],
+                ];
+                header('Location: index.php'); // Redirige al usuario a la página principal
+                exit();
+            } else {
+                $mensaje_error = "Debes verificar tu correo antes de iniciar sesión.";
+            }
         } else {
-            $mensaje_error = 'Correo o contraseña incorrectos.';
+            $mensaje_error = "Correo o contraseña incorrectos.";
         }
     } else {
-        $mensaje_error = 'Correo o contraseña incorrectos.';
+        $mensaje_error = "Correo o contraseña incorrectos.";
     }
 }
 ?>

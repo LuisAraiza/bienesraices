@@ -1,5 +1,9 @@
 <?php
-include 'db.php'; 
+include 'db.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'vendor/autoload.php';
 
 $registroExitoso = false;
 $errorRegistro = '';
@@ -8,27 +12,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $correo = $_POST['correo'];
     $password = $_POST['password'];
 
-    $sqlVerificar = "SELECT COUNT(*) FROM usuario WHERE correo = :correo";
+    // Verificar si el correo ya existe
+    $sqlVerificar = "SELECT * FROM usuario WHERE correo = :correo";
     $stmtVerificar = $pdo->prepare($sqlVerificar);
     $stmtVerificar->execute([':correo' => $correo]);
-    $existeCorreo = $stmtVerificar->fetchColumn();
+    $usuarioExistente = $stmtVerificar->fetch();
 
-    if ($existeCorreo) {
-        $errorRegistro = "El correo ya está registrado.";
+    if ($usuarioExistente) {
+        // Si el usuario existe pero no está verificado, envía otro código de verificación
+        if ($usuarioExistente['verificado'] == 0) {
+            $codigo_verificacion = rand(1000, 9999);
+
+            // Actualiza el código de verificación
+            $sqlActualizar = "UPDATE usuario SET codigo_verificacion = :codigo WHERE correo = :correo";
+            $stmtActualizar = $pdo->prepare($sqlActualizar);
+            $stmtActualizar->execute([
+                ':codigo' => $codigo_verificacion,
+                ':correo' => $correo
+            ]);
+
+            // Enviar correo de verificación
+            $mail = new PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'bienes739@gmail.com'; // Cambia por tu correo
+            $mail->Password = 'gozg jhqf maty juqc'; // Cambia por tu contraseña
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            $mail->setFrom('bienes739@gmail.com', 'Administrador');
+            $mail->addAddress($correo);
+            $mail->isHTML(true);
+            $mail->Subject = 'Verifica tu cuenta';
+            $mail->Body = 'Tu nuevo código de verificación es: ' . $codigo_verificacion;
+
+            $mail->send();
+            $registroExitoso = true;
+            header('Location: autenticacion.php?correo=' . urlencode($correo)); // Redirige a autenticacion.php
+            exit();
+        } else {
+            $errorRegistro = "El correo ya está registrado y verificado.";
+        }
     } else {
-        $password_hash = password_hash($password, PASSWORD_DEFAULT);
+        // Si el correo no existe, crea un nuevo usuario
+        $codigo_verificacion = rand(1000, 9999);
 
-        $sql = "INSERT INTO usuario (correo, password) VALUES (:correo, :password)";
+        // Inserta el correo, contraseña y código de verificación
+        $sql = "INSERT INTO usuario (correo, password, codigo_verificacion, verificado) VALUES (:correo, :password, :codigo, 0)";
         $stmt = $pdo->prepare($sql);
-        
+
         try {
             $stmt->execute([
                 ':correo' => $correo,
-                ':password' => $password_hash 
+                ':password' => password_hash($password, PASSWORD_DEFAULT), // Guarda la contraseña hasheada
+                ':codigo' => $codigo_verificacion
             ]);
+            // Enviar correo de verificación
+            $mail = new PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'bienes739@gmail.com'; // Cambia por tu correo
+            $mail->Password = 'gozg jhqf maty juqc'; // Cambia por tu contraseña
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            $mail->setFrom('bienes739@gmail.com', 'Administrador');
+            $mail->addAddress($correo);
+            $mail->isHTML(true);
+            $mail->Subject = 'Verifica tu cuenta';
+            $mail->Body = 'Tu código de verificación es: ' . $codigo_verificacion;
+
+            $mail->send();
             $registroExitoso = true;
+            header('Location: autenticacion.php?correo=' . urlencode($correo)); // Redirige a autenticacion.php
+            exit();
         } catch (PDOException $e) {
             $errorRegistro = 'Error: ' . $e->getMessage();
+        } catch (Exception $e) {
+            $errorRegistro = 'No se pudo enviar el correo. Error: ' . $e->getMessage();
         }
     }
 }
@@ -51,6 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             height: 100vh;
             margin: 0;
         }
+
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -61,138 +125,114 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             position: fixed;
             top: 0;
         }
+
         .navbar img {
             height: 50px;
         }
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            padding: 10px;
-        }
-        .nav-links a:hover {
-            background-color: #575757;
-        }
-        .container {
-            max-width: 400px;
-            margin: 120px auto 50px; 
+
+        .register-container {
             background-color: white;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            position: relative;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            margin-top: 100px;
         }
-        h2 {
+
+        .register-container h2 {
             text-align: center;
+            margin-bottom: 20px;
         }
-        form div {
-            margin-bottom: 15px;
-        }
-        label {
+
+        .register-container label {
             display: block;
             margin-bottom: 5px;
         }
-        input[type="email"], input[type="password"] {
+
+        .register-container input[type="email"],
+        .register-container input[type="password"] {
             width: 100%;
             padding: 10px;
+            margin-bottom: 20px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 4px;
         }
-        button {
+
+        .register-container button {
             width: 100%;
             padding: 10px;
             background-color: #333;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
+            cursor: pointer;
         }
-        button:hover {
+
+        .register-container button:hover {
             background-color: #575757;
         }
-        .link {
+
+        .register-container .error-message {
+            color: red;
             text-align: center;
-            margin-top: 15px;
+            margin-bottom: 15px;
         }
-        .mensaje-exito {
-            position: absolute;
-            top: -60px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #4caf50; 
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            display: <?php echo $registroExitoso ? 'block' : 'none'; ?>;
-            z-index: 10;
-            transition: opacity 0.5s ease;
+
+        .register-container .success-message {
+            color: green;
+            text-align: center;
+            margin-bottom: 15px;
         }
-        .mensaje-error {
-            position: absolute;
-            top: -60px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #f44336;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            display: <?php echo !empty($errorRegistro) ? 'block' : 'none'; ?>;
-            z-index: 10;
-            transition: opacity 0.5s ease;
+
+        .register-container .link-inicio {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .register-container .link-inicio a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        .register-container .link-inicio a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
+
     <div class="navbar">
         <div class="logo">
             <img src="img/logochido.png" alt="Logo de la Empresa">
         </div>
     </div>
 
-    <div class="container">
-        <?php if ($registroExitoso): ?>
-            <div class="mensaje-exito" id="mensajeExito">Usuario registrado exitosamente.</div>
-        <?php endif; ?>
-        <?php if (!empty($errorRegistro)): ?>
-            <div class="mensaje-error" id="mensajeError"><?php echo $errorRegistro; ?></div>
-        <?php endif; ?>
+    <div class="register-container">
         <h2>Registrar Usuario</h2>
+
+        <?php if ($errorRegistro): ?>
+            <div class="error-message"><?php echo htmlspecialchars($errorRegistro); ?></div>
+        <?php endif; ?>
+
+        <?php if ($registroExitoso): ?>
+            <div class="success-message">Te hemos enviado un correo de verificación.</div>
+        <?php endif; ?>
+
         <form action="registrar_usuario.php" method="POST">
-            <div>
-                <label for="correo">Correo electrónico:</label>
-                <input type="email" id="correo" name="correo" required>
-            </div>
-            <div>
-                <label for="password">Contraseña:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <div>
-                <button type="submit">Registrar</button>
-            </div>
+            <label for="correo">Correo Electrónico:</label>
+            <input type="email" id="correo" name="correo" required>
+
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Registrar</button>
         </form>
-        <div class="link">
-            <a href="login.php">¿Ya tienes una cuenta? Inicia sesión</a>
+
+        <div class="link-inicio">
+            <p>¿Ya tienes cuenta? <a href="login.php">Inicia sesión aquí</a></p>
         </div>
     </div>
 
-    <script>
-        setTimeout(function() {
-            const mensajeExito = document.getElementById('mensajeExito');
-            if (mensajeExito) {
-                mensajeExito.style.opacity = '0';
-                setTimeout(function() {
-                    mensajeExito.style.display = 'none';
-                }, 500);
-            }
-        }, 3000);
-
-        setTimeout(function() {
-            const mensajeError = document.getElementById('mensajeError');
-            if (mensajeError) {
-                mensajeError.style.opacity = '0';
-                setTimeout(function() {
-                    mensajeError.style.display = 'none';
-                }, 500);
-            }
-        }, 5000);
-    </script>
 </body>
 </html>
