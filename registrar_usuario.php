@@ -12,18 +12,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $correo = $_POST['correo'];
     $password = $_POST['password'];
 
-    // Verificar si el correo ya existe
     $sqlVerificar = "SELECT * FROM usuario WHERE correo = :correo";
     $stmtVerificar = $pdo->prepare($sqlVerificar);
     $stmtVerificar->execute([':correo' => $correo]);
     $usuarioExistente = $stmtVerificar->fetch();
 
     if ($usuarioExistente) {
-        // Si el usuario existe pero no está verificado, envía otro código de verificación
         if ($usuarioExistente['verificado'] == 0) {
             $codigo_verificacion = rand(1000, 9999);
 
-            // Actualiza el código de verificación
             $sqlActualizar = "UPDATE usuario SET codigo_verificacion = :codigo WHERE correo = :correo";
             $stmtActualizar = $pdo->prepare($sqlActualizar);
             $stmtActualizar->execute([
@@ -31,13 +28,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':correo' => $correo
             ]);
 
-            // Enviar correo de verificación
             $mail = new PHPMailer(true);
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'bienes739@gmail.com'; // Cambia por tu correo
-            $mail->Password = 'gozg jhqf maty juqc'; // Cambia por tu contraseña
+            $mail->Username = 'bienes739@gmail.com';
+            $mail->Password = 'gozg jhqf maty juqc';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
@@ -49,32 +45,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $mail->send();
             $registroExitoso = true;
-            header('Location: autenticacion.php?correo=' . urlencode($correo)); // Redirige a autenticacion.php
+            header('Location: autenticacion.php?correo=' . urlencode($correo));
             exit();
         } else {
             $errorRegistro = "El correo ya está registrado y verificado.";
         }
     } else {
-        // Si el correo no existe, crea un nuevo usuario
         $codigo_verificacion = rand(1000, 9999);
 
-        // Inserta el correo, contraseña y código de verificación
         $sql = "INSERT INTO usuario (correo, password, codigo_verificacion, verificado) VALUES (:correo, :password, :codigo, 0)";
         $stmt = $pdo->prepare($sql);
 
         try {
             $stmt->execute([
                 ':correo' => $correo,
-                ':password' => password_hash($password, PASSWORD_DEFAULT), // Guarda la contraseña hasheada
+                ':password' => password_hash($password, PASSWORD_DEFAULT),
                 ':codigo' => $codigo_verificacion
             ]);
-            // Enviar correo de verificación
             $mail = new PHPMailer(true);
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'bienes739@gmail.com'; // Cambia por tu correo
-            $mail->Password = 'gozg jhqf maty juqc'; // Cambia por tu contraseña
+            $mail->Username = 'bienes739@gmail.com';
+            $mail->Password = 'gozg jhqf maty juqc'; 
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
@@ -86,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $mail->send();
             $registroExitoso = true;
-            header('Location: autenticacion.php?correo=' . urlencode($correo)); // Redirige a autenticacion.php
+            header('Location: autenticacion.php?correo=' . urlencode($correo));
             exit();
         } catch (PDOException $e) {
             $errorRegistro = 'Error: ' . $e->getMessage();
@@ -105,108 +98,115 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Registrar Usuario</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    display: flex; /* Añadido flexbox */
+    justify-content: center; /* Centra los elementos horizontalmente */
+    align-items: center; /* Centra los elementos verticalmente */
+    height: 100vh; /* Asegura que el cuerpo ocupe toda la altura */
+}
 
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #333;
-            padding: 10px;
-            width: 100%;
-            position: fixed;
-            top: 0;
-        }
+.header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 0;
+    text-align: center;
+    position: fixed; /* Fija el encabezado en la parte superior */
+    width: 100%; /* Asegura que el header ocupe todo el ancho */
+    top: 0; /* Fija en la parte superior */
+    left: 0; /* Asegura que empiece desde el borde izquierdo */
+    z-index: 10; /* Hace que el header esté por encima del contenido */
+}
 
-        .navbar img {
-            height: 50px;
-        }
+.header a {
+    color: #fff;
+    margin: 0 15px;
+    text-decoration: none;
+}
 
-        .register-container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
-            margin-top: 100px;
-        }
+.header a:hover {
+    text-decoration: underline;
+}
 
-        .register-container h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+.register-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    margin-top: 60px; /* Se asegura de que el formulario no quede cubierto por el header fijo */
+}
 
-        .register-container label {
-            display: block;
-            margin-bottom: 5px;
-        }
+.register-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-        .register-container input[type="email"],
-        .register-container input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
+.register-container label {
+    display: block;
+    margin-bottom: 5px;
+}
 
-        .register-container button {
-            width: 100%;
-            padding: 10px;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+.register-container input[type="email"],
+.register-container input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
 
-        .register-container button:hover {
-            background-color: #575757;
-        }
+.register-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
 
-        .register-container .error-message {
-            color: red;
-            text-align: center;
-            margin-bottom: 15px;
-        }
+.register-container button:hover {
+    background-color: #575757;
+}
 
-        .register-container .success-message {
-            color: green;
-            text-align: center;
-            margin-bottom: 15px;
-        }
+.register-container .error-message {
+    color: red;
+    text-align: center;
+    margin-bottom: 15px;
+}
 
-        .register-container .link-inicio {
-            text-align: center;
-            margin-top: 10px;
-        }
+.register-container .success-message {
+    color: green;
+    text-align: center;
+    margin-bottom: 15px;
+}
 
-        .register-container .link-inicio a {
-            color: #333;
-            text-decoration: none;
-        }
+.register-container .link-inicio {
+    text-align: center;
+    margin-top: 10px;
+}
 
-        .register-container .link-inicio a:hover {
-            text-decoration: underline;
-        }
+.register-container .link-inicio a {
+    color: #333;
+    text-decoration: none;
+}
+
+.register-container .link-inicio a:hover {
+    text-decoration: underline;
+}
+
     </style>
 </head>
 <body>
+<header class="header">
+    <h1>HazTuHogar</h1>
+</header>
 
-    <div class="navbar">
-        <div class="logo">
-            <img src="img/logochido.png" alt="Logo de la Empresa">
-        </div>
-    </div>
 
     <div class="register-container">
         <h2>Registrar Usuario</h2>

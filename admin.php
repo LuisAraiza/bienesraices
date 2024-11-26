@@ -30,22 +30,21 @@ $propiedades = $stmt->fetchAll(PDO::FETCH_ASSOC);
             padding: 0;
         }
 
-        .navbar {
+        .header {
             background-color: #333;
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            color: white;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
         }
 
-        .navbar img {
-            height: 40px;
-            margin-right: 20px;
+        .header a {
+            color: #fff;
+            margin: 0 15px;
+            text-decoration: none;
         }
 
-        .navbar h1 {
-            font-size: 24px;
-            margin: 0;
+        .header a:hover {
+            text-decoration: underline;
         }
 
         .titulo {
@@ -120,26 +119,6 @@ $propiedades = $stmt->fetchAll(PDO::FETCH_ASSOC);
             background-color: darkred;
         }
 
-        .icono-regresar {
-            position: absolute;
-            top: 85px;
-            left: 20px;
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-        }
-
-        .icono-regresar img {
-            width: 30px;
-            height: auto;
-            margin-right: 8px;
-        }
-
-        .icono-regresar span {
-            color: black; 
-            font-size: 16px;
-        }
-
         .mensaje-flotante {
             background-color: #4CAF50;
             color: white;
@@ -155,76 +134,74 @@ $propiedades = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <div class="logo">
-            <a href="index.php">
-                <img src="img/logochido.png" alt="Logo de la Empresa">
-            </a>
-        </div>
-    </div>
 
-    <a href="index.php" class="icono-regresar">
-        <img src="img/regresar.png" alt="Regresar" />
-        <span>Regresar</span>
-    </a>
+<header class="header">
+    <h1>HazTuHogar</h1>
+    <nav>
+        <a href="index.php">Inicio</a>
+        <a href="nosotros.php">Nosotros</a>
+        <a href="blog.php">Blog</a>
+        <a href="contactanos.php">Contacto</a>
+    </nav>
+</header>
 
-    <div class="titulo">
-        <h2>Administrador de Propiedades</h2>
-    </div>
+<div class="titulo">
+    <h2>Administrador de Propiedades</h2>
+</div>
 
-    <div class="container">
-        <a href="agregar_propiedad.php" class="boton-nueva">Nueva Propiedad</a>
-        <a href="agregar_vendedores.php" class="boton-nueva">Nuevo Vendedor</a>
+<div class="container">
+    <a href="agregar_propiedad.php" class="boton-nueva">Nueva Propiedad</a>
+    <a href="agregar_vendedores.php" class="boton-nueva">Nuevo Vendedor</a>
 
-        <?php if (!empty($mensaje)): ?>
-            <div class="mensaje-flotante" id="mensaje"><?php echo $mensaje; ?></div>
-        <?php endif; ?>
+    <?php if (!empty($mensaje)): ?>
+        <div class="mensaje-flotante" id="mensaje"><?php echo $mensaje; ?></div>
+    <?php endif; ?>
 
-        <table>
-            <thead>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Imagen</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            if ($propiedades):
+                foreach ($propiedades as $propiedad): ?>
                 <tr>
-                    <th>ID</th>
-                    <th>Título</th>
-                    <th>Imagen</th>
-                    <th>Precio</th>
-                    <th>Acciones</th>
+                    <td><?php echo $propiedad['id']; ?></td>
+                    <td><?php echo $propiedad['titulo']; ?></td>
+                    <td><img src="<?php echo $propiedad['imagen'];?>" alt="Imagen Propiedad" style="width:200px;"></td>
+                    <td><?php echo number_format($propiedad['precio'], 2, ',', '.'); ?> $ MXN</td>
+                    <td>
+                        <a href="actualizar_propiedad.php?id=<?php echo $propiedad['id']; ?>" class="boton actualizar">Actualizar</a>
+                        <a href="eliminar_propiedad.php?id=<?php echo $propiedad['id']; ?>" class="boton eliminar" onclick="return confirm('¿Estás seguro de eliminar esta propiedad?');">Eliminar</a>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                <?php
-                if ($propiedades):
-                    foreach ($propiedades as $propiedad): ?>
-                    <tr>
-                        <td><?php echo $propiedad['id']; ?></td>
-                        <td><?php echo $propiedad['titulo']; ?></td>
-                        <td><img src="<?php echo $propiedad['imagen'];?>" alt="Imagen Propiedad" style="width:200px;"></td>
-                        <td><?php echo number_format($propiedad['precio'], 2, ',', '.'); ?> $ MXN</td>
-                        <td>
-                            <a href="actualizar_propiedad.php?id=<?php echo $propiedad['id']; ?>" class="boton actualizar">Actualizar</a>
-                            <a href="eliminar_propiedad.php?id=<?php echo $propiedad['id']; ?>" class="boton eliminar" onclick="return confirm('¿Estás seguro de eliminar esta propiedad?');">Eliminar</a>
-                        </td>
-                    </tr>
-                    <?php endforeach;
-                else: ?>
-                    <tr>
-                        <td colspan="5">No hay propiedades registradas.</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
+                <?php endforeach;
+            else: ?>
+                <tr>
+                    <td colspan="5">No hay propiedades registradas.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
 
-    <script>
-        window.onload = function() {
-            var mensaje = document.getElementById('mensaje');
-            if (mensaje) {
-                mensaje.style.display = 'block';
-                setTimeout(function() {
-                    mensaje.style.display = 'none';
-                }, 5000);
-            }
-        };
-    </script>
+<script>
+    window.onload = function() {
+        var mensaje = document.getElementById('mensaje');
+        if (mensaje) {
+            mensaje.style.display = 'block';
+            setTimeout(function() {
+                mensaje.style.display = 'none';
+            }, 5000);
+        }
+    };
+</script>
 
 </body>
 </html>

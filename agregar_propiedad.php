@@ -41,20 +41,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $pdo->prepare($sql);
 
     try {
-        $stmt->execute([
-            ':titulo' => $titulo,
-            ':precio' => $precio,
-            ':imagen' => $ruta_imagen,
-            ':descripcion' => $descripcion,
-            ':habitaciones' => $habitaciones,
-            ':wc' => $wc,
-            ':estacionamiento' => $estacionamiento,
-            ':creado' => $creado,
-            ':vendedores_id' => $vendedores_id,
-            ':latitud' => $latitud,
+        $stmt->execute([ 
+            ':titulo' => $titulo, 
+            ':precio' => $precio, 
+            ':imagen' => $ruta_imagen, 
+            ':descripcion' => $descripcion, 
+            ':habitaciones' => $habitaciones, 
+            ':wc' => $wc, 
+            ':estacionamiento' => $estacionamiento, 
+            ':creado' => $creado, 
+            ':vendedores_id' => $vendedores_id, 
+            ':latitud' => $latitud, 
             ':longitud' => $longitud
         ]);
         $mensaje = "Propiedad agregada exitosamente.";
+        // Redirección a admin.php después de 5 segundos
+        header('refresh:5; url=admin.php');
     } catch (PDOException $e) {
         echo 'Error: ' . $e->getMessage();
     }
@@ -74,49 +76,29 @@ $vendedores = $pdo->query("SELECT * FROM vendedores")->fetchAll(PDO::FETCH_ASSOC
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
-            padding-top: 70px;
+            padding: 0;
         }
 
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .header {
             background-color: #333;
-            padding: 10px;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
         }
 
-        .navbar img {
-            height: 50px;
-        }
-
-        .icono-regresar {
-            position: absolute;
-            top: 85px;
-            left: 20px;
-            display: flex; 
-            align-items: center; 
+        .header a {
+            color: #fff;
+            margin: 0 15px;
             text-decoration: none;
         }
 
-        .icono-regresar img {
-            width: 30px;
-            height: auto; 
-            margin-right: 8px; 
-        }
-
-        .icono-regresar span {
-            color: black; 
-            font-size: 16px; 
+        .header a:hover {
+            text-decoration: underline;
         }
 
         .container {
             max-width: 800px;
-            margin: 20px auto; 
+            margin: 20px auto;
             background-color: white;
             padding: 20px;
             border-radius: 10px;
@@ -169,7 +151,7 @@ $vendedores = $pdo->query("SELECT * FROM vendedores")->fetchAll(PDO::FETCH_ASSOC
             border-radius: 5px;
             display: none;
         }
-        
+
         #map {
             height: 400px; 
             width: 100%; 
@@ -209,18 +191,15 @@ $vendedores = $pdo->query("SELECT * FROM vendedores")->fetchAll(PDO::FETCH_ASSOC
 </head>
 <body>
 
-    <div class="navbar">
-        <div class="logo">
-            <a href="index.php">
-                <img src="img/logochido.png" alt="Logo de la Empresa">
-            </a>
-        </div>
-    </div>
-
-    <a href="admin.php" class="icono-regresar">
-        <img src="img/regresar.png" alt="Regresar" />
-        <span>Regresar</span>
-    </a>
+<header class="header">
+    <h1>HazTuHogar</h1>
+    <nav>
+        <a href="index.php">Inicio</a>
+        <a href="nosotros.php">Nosotros</a>
+        <a href="blog.php">Blog</a>
+        <a href="contactanos.php">Contacto</a>
+    </nav>
+</header>
 
     <?php if (!empty($mensaje)): ?>
         <div class="mensaje-flotante" id="mensaje"><?php echo $mensaje; ?></div>
@@ -280,7 +259,7 @@ $vendedores = $pdo->query("SELECT * FROM vendedores")->fetchAll(PDO::FETCH_ASSOC
             document.getElementById('mensaje').style.display = 'block';
             setTimeout(function() {
                 document.getElementById('mensaje').style.display = 'none';
-            }, 5000);
+            }, 3000);
         <?php endif; ?>
     </script>
 </body>

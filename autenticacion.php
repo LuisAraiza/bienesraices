@@ -6,14 +6,14 @@ require 'vendor/autoload.php';
 
 $correo = '';
 $error = '';
-$reenviado = false;  // Nueva variable para mostrar el mensaje
+$reenviado = false;
 
 if (isset($_GET['correo'])) {
     $correo = $_GET['correo'];
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['codigo'])) { // Verificar el código ingresado
+    if (isset($_POST['codigo'])) { 
         $codigoIngresado = $_POST['codigo'];
 
         $sql = "SELECT * FROM usuario WHERE correo = :correo AND codigo_verificacion = :codigo";
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $error = "Código de verificación incorrecto.";
         }
-    } elseif (isset($_POST['reenviar'])) { // Reenviar el código
+    } elseif (isset($_POST['reenviar'])) { 
         $nuevoCodigo = rand(1000, 9999);
 
         $sqlActualizarCodigo = "UPDATE usuario SET codigo_verificacion = :codigo WHERE correo = :correo";
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail->Body = 'Tu nuevo código de verificación es: ' . $nuevoCodigo;
 
             $mail->send();
-            $reenviado = true;  // Mostrar mensaje de éxito
+            $reenviado = true; 
         } catch (Exception $e) {
             $error = 'Error al enviar el correo: ' . $mail->ErrorInfo;
         }
@@ -79,18 +79,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 0;
         }
         .navbar {
-            background-color: #333; /* Color de la barra de navegación */
+            background-color: #333;
             padding: 10px;
-            text-align: left; /* Alineación a la izquierda */
+            text-align: left;
             position: fixed;
             width: 100%;
             top: 0;
-            display: flex; /* Flex para alinear el logo y el icono */
-            align-items: center; /* Alineación vertical */
+            display: flex;
+            align-items: center; 
         }
         .navbar img {
-            height: 40px; /* Ajustar el tamaño del logo */
-            margin-right: 20px; /* Espaciado entre el logo y el ícono */
+            height: 40px; 
+            margin-right: 20px; 
         }
         .container {
             max-width: 400px;
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 60px; /* Margen para evitar que se superponga con la navbar */
+            margin-top: 60px; 
         }
         h2 {
             text-align: center;
@@ -132,8 +132,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-align: center;
             margin-top: 15px;
             cursor: pointer;
-            color: #333; /* Color del enlace */
-            text-decoration: underline; /* Subrayado */
+            color: #333;
+            text-decoration: underline;
         }
         .mensaje-error {
             color: red;
@@ -161,13 +161,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-top: 10px;
         }
         .login-container .link-reenviar a {
-            color: #333; /* Color del enlace */
+            color: #333;
             text-decoration: none;
             font-weight: bold;
             transition: color 0.3s ease;
         }
         .login-container .link-reenviar a:hover {
-            color: #333; /* Color al hacer hover */
+            color: #333; 
             text-decoration: underline;
         }
         
@@ -217,7 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const reenviarForm = document.getElementById('reenviar-form');
         const mensajeFlotante = document.getElementById('mensaje-flotante');
 
-        reenviarLink.style.pointerEvents = 'none'; // Deshabilitar al inicio
+        reenviarLink.style.pointerEvents = 'none';
 
         const interval = setInterval(() => {
             tiempoRestante--;
@@ -225,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (tiempoRestante <= 0) {
                 clearInterval(interval);
-                reenviarLink.style.pointerEvents = 'auto'; // Habilitar
+                reenviarLink.style.pointerEvents = 'auto';
                 reenviarLink.style.color = '#0066cc';
                 contador.textContent = 'Ahora puedes reenviar el código.';
             }
@@ -233,11 +233,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         function reenviarCodigo() {
             reenviarForm.submit();
-            reenviarLink.style.pointerEvents = 'none'; // Deshabilitar nuevamente
-            tiempoRestante = 15; // Reiniciar el contador
+            reenviarLink.style.pointerEvents = 'none'; 
+            tiempoRestante = 15;
             contador.textContent = `Espera ${tiempoRestante} segundos para reenviar otro código.`;
             const mensajeFlotante = document.getElementById('mensaje-flotante');
-            mensajeFlotante.style.display = 'block'; // Mostrar mensaje
+            mensajeFlotante.style.display = 'block';
             setTimeout(() => {
                 mensajeFlotante.style.display = 'none';
             }, 3000);

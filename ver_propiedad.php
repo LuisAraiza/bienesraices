@@ -18,23 +18,21 @@ $propiedad = $pdo->query("SELECT * FROM propiedades WHERE id = $id")->fetch(PDO:
             padding: 0;
         }
 
-        .navbar {
+        .header {
             background-color: #333;
-            padding: 15px;
-            display: flex;
-            align-items: center;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
         }
 
-        .navbar img {
-            height: 40px;
-            margin-right: 20px;
-        }
-
-        .navbar a {
-            color: white;
+        .header a {
+            color: #fff;
+            margin: 0 15px;
             text-decoration: none;
-            margin-right: 15px;
-            font-size: 18px;
+        }
+
+        .header a:hover {
+            text-decoration: underline;
         }
 
         .container {
@@ -118,6 +116,25 @@ $propiedad = $pdo->query("SELECT * FROM propiedades WHERE id = $id")->fetch(PDO:
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
+        .navbar {
+            background-color: #333;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar img {
+            height: 40px;
+            margin-right: 20px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-right: 15px;
+            font-size: 18px;
+        }
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4drskHDqfMsBK_BG8znkDBhei3gjAmhE"></script>
     <script>
@@ -139,13 +156,16 @@ $propiedad = $pdo->query("SELECT * FROM propiedades WHERE id = $id")->fetch(PDO:
     </script>
 </head>
 <body onload="initMap()">
-    <div class="navbar">
-        <div class="logo">
-            <a href="index.php">
-                <img src="img/logochido.png" alt="Logo de la Empresa">
-            </a>
-        </div>
-    </div>
+
+    <header class="header">
+        <h1>HazTuHogar</h1>
+        <nav>
+            <a href="index.php">Inicio</a>
+            <a href="nosotros.php">Nosotros</a>
+            <a href="blog.php">Blog</a>
+            <a href="contactanos.php">Contacto</a>
+        </nav>
+    </header>
 
     <div class="container">
         <div class="imagen-container">

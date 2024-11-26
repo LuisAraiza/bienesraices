@@ -46,45 +46,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agregar Vendedor</title>
     <style>
-        body {
+         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
-            padding-top: 70px;
+            padding: 0;
         }
 
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .header {
             background-color: #333;
-            padding: 10px;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
         }
 
-        .navbar img {
-            height: 50px;
-        }
-
-        .nav-links {
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .nav-links a {
-            color: white;
+        .header a {
+            color: #fff;
+            margin: 0 15px;
             text-decoration: none;
-            padding: 10px 15px;
-            transition: background-color 0.3s;
-            white-space: nowrap;
         }
 
-        .nav-links a:hover {
-            background-color: #575757;
+        .header a:hover {
+            text-decoration: underline;
         }
 
         .icono-regresar {
@@ -173,18 +156,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
-    <div class="navbar">
-        <div class="logo">
-            <a href="index.php">
-                <img src="img/logochido.png" alt="Logo de la Empresa">
-            </a>
-        </div>
-    </div>
-
-    <a href="admin.php" class="icono-regresar">
-        <img src="img/regresar.png" alt="Regresar" />
-        <span>Regresar</span>
-    </a>
+<header class="header">
+    <h1>HazTuHogar</h1>
+    <nav>
+        <a href="index.php">Inicio</a>
+        <a href="nosotros.php">Nosotros</a>
+        <a href="blog.php">Blog</a>
+        <a href="contactanos.php">Contacto</a>
+    </nav>
+</header>
 
     <?php if (!empty($mensaje_exito)): ?>
         <div class="mensaje-flotante mensaje-exito" id="mensaje-exito"><?php echo $mensaje_exito; ?></div>
@@ -224,6 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 mensajeExito.style.display = 'block';
                 setTimeout(function() {
                     mensajeExito.style.display = 'none';
+                    window.location.href = "admin.php";  // Redirige a admin.php después de 3 segundos
                 }, 3000);
             }
             
